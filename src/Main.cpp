@@ -9,6 +9,11 @@
  */
 
 #include <iostream>
+#include "Cache.h"
+#include "TACache.h"
+#include "SACache.h"
+#include "MainMemory.h"
+#include "Processor.h"
 
 using namespace std;
 
