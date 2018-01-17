@@ -4,12 +4,13 @@
 
 
 /**
- * Métodos da classe Memory
+ * Métodos da classe MainMemory
  */
 MainMemory::MainMemory() {
 	// TODO
 }
 
-MainMemory MainMemory::createMainMemory() {
+MainMemory MainMemory::createMainMemory(int ramsize, int vmsize) {
 	// TODO
+	return MainMemory();
 }

@@ -1,6 +1,8 @@
 #ifndef PROCESSOR_H
 #define PROCESSOR_H 1
 
+#include "Memory.h"
+
 /*
  * Classe para representar o processador
  */

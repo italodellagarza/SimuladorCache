@@ -7,9 +7,10 @@
  */
 
 Processor::Processor() {
-
+	// TODO
 }
 
-Processor Processor::createProcessor() {
-
+Processor Processor::createProcessor(Memory mem, int ncores) {
+	// TODO
+	return Processor();
 }
