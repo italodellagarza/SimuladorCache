@@ -2,13 +2,14 @@
 #include "Memory.h"
 
 Memory::Memory() {
-
+    c = NULL;
+    mem = NULL;
 }
 
 Memory Memory::createMemory(Cache c, MainMemory mem) {
-	// TODO
-	Memory m;
-	return m;
+	Memory m = new Memory();
+	m->c = c;
+    m->mem = mem;
 }
 
 int Memory::getData(Memory mem){

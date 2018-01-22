@@ -7,6 +7,8 @@
 class Memory {
 private:
 	Memory();
+    MainMemory mem;
+    Cache c;
 public:
 	static Memory createMemory(Cache c, MainMemory mem);
 	static int getData(Memory mem);
