@@ -7,14 +7,15 @@
 class Memory {
 private:
 	Memory();
-    MainMemory mem;
+    MainMemory mmem;
     Cache c;
 public:
 	static Memory createMemory(Cache c, MainMemory mem);
 	static int getData(Memory mem);
 	static int getInstruction(Memory mem, int address, int* value);
-	static int setData(Memory mem, int address, int value);
-	static int setInstruction(Memory mem, int address, int value);
+	static void setData(Memory mem, int address, int value);
+	static void setInstruction(Memory mem, int address, int value);
+	static Memory duplicateMemory(Memory mem);
 	~Memory();
 	
 };

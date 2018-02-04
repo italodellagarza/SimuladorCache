@@ -9,7 +9,7 @@
 class Processor{
 private:
 	Processor();
-	Memory memoryHierarchy[];
+	Memory [] coreMemory;
 	int ncores;
 public:
 	static Processor createProcessor(Memory mem, int ncores);

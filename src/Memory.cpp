@@ -7,24 +7,31 @@ Memory::Memory() {
 }
 
 Memory Memory::createMemory(Cache c, MainMemory mem) {
-	Memory m = new Memory();
-	m->c = c;
-    m->mem = mem;
+    Memory* m = new Memory();
+    m->c = c;
+    m->mmem = mem;
+    return m;
 }
 
-int Memory::getData(Memory mem){
-	// TODO
-	return 0;
+int Memory::getData(Memory mem, int address, int* value){
+    return Cache::getCacheData(mem.c, mem.mmem, address, value);
 }
 int Memory::getInstruction(Memory mem, int address, int* value){
-	// TODO
-	return 0;
+    return Cache::getCacheInstruction(mem.c, mem.mmem, adress, value);
 }
-int Memory::setData(Memory mem, int address, int value){
-	// TODO
-	return 0;	
+void Memory::setData(Memory mem, int address, int value){
+    MainMemory::setMainMemoryData(mem.mmem, address, value);
+    // TODO - verificar como é a escrita na hierarquia de memória.  
 }
-int Memory::setInstruction(Memory mem, int address, int value){
-	// TODO
-	return 0;
+void Memory::setInstruction(Memory mem, int address, int value){
+    MainMemory::setMainMemoryData(mem.mmem, address, value);
+    // TODO - verificar como é a escrita na hierarquia de memória.  
+    return 0;
+}
+
+Memory Memory::duplicateMemory(Memory mem) {
+	Memory* result = new Memory();
+	result->c = duplicateCache(mem.c);
+	result->mmem = mem.mmem;
+	return result;
 }
