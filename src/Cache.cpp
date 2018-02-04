@@ -2,11 +2,10 @@
 #include "Cache.h"
 
 Cache::Cache(SaCache l1d, SACache l1i, SACache l2, SACache l3) {
-    Cache newCache;
-    newCache.l1d = l1d;
-    newCache.l1i = l1i;
-    newCache.l2 = l2;
-    newCache.l3 = l3;
+    this->l1d = l1d;
+    this->l1i = l1i;
+    this->l2 = l2;
+    this->l3 = l3;
 }
 
 Cache Cache::createCache(SACache l1d, SACache l1i, SACache l2, SACache* l3) {
