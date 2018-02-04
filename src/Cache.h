@@ -5,13 +5,19 @@
 
 class Cache {
 private:
-	Cache();
+	SACache l1d;
+	SACache l1i;
+	SACache l2;
+	SACache* l3;
+	Cache(SaCache l1d, SACache l1i, SACache l2, SACache* l3);
 public:
-	static Cache createCache(SACache lld, SACache lli, SACache l2, SACache l3);
-	static int getCacheData(Cache c, int address, int * value);
-	static int getCacheInstruction(Cache c, int address, int * value);
-	static void setCacheData(Cache sac, int address, int value);
-	static void setCacheInstruction(Cache sac, int address, int value);
+	static Cache createCache(SACache l1d, SACache l1i, SACache l2, SACache l3);
+	static int getCacheData(Cache &c, MainMemory mmem, int address, int * value);
+	static int getCacheInstruction(Cache &c, MainMemory mmem, int address, int * value);
+	static int setCacheData(Cache &c, mainMemory &mmem, int address, int value);
+	static void setCacheInstruction(Cache &c, MainMemory mmem, int address, int value);
+	static void fetchCacheData(Cache &c, MainMemory mmem, int adress);
+	static void fetchCacheInstruction(Cache &c, MainMemory mmem, int adress);
 	static Cache duplicateCache(Cache c);
 	~Cache();
 	
