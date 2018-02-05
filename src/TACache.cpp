@@ -5,13 +5,15 @@
 using namespace std;
 TACache::TACache() {
     matrixBytes = NULL;
+    nLines = 0;
+    tagSize = 0;
+    linesOccupied = 0;
+    tagSize = 0;
+    a = 1;
 }
 
 TACache::~TACache() {
     delete [] matrixBytes;
-    nLines = 0;
-    indexSize = 0;
-    linesOccupied = 0;
 }
 
 
@@ -23,11 +25,14 @@ TACache TACache::createTACache(int c, int l) {
     for(int i = 0; i < tac->nLines; ++i) {
         // Divide a linha em um vetor de inteiros.
         tac->matrixBytes[i] = (int*)malloc(l);
-        // Inicializa a matriz de bytes zerada.
     }
     tac->tACacheCapacity = c;
     tac->tACacheLineSize = l;
-    tac->indexSize = tac->nLines%l;
+    int w = tac->nLines;
+    while(w xor 1) {
+    	w  = w >> 1;
+    	++tac->tagSize;
+    }
     return *tac;
 }
 int TACache::getTACacheCapacity(TACache tac) {
@@ -43,29 +48,49 @@ int TACache::getTACacheLineSize(TACache tac) {
  */
 bool TACache::getTACacheData(TACache tac, int address, int * value) {
     // Verificando os bits de label
-    int label = address;
-    cout << "label = " << label << endl;
+    int offset = (tac.nLines - 1) & address;
+    int tag = (address & !offset) >> tac.tagSize;
+    //cout << "label = " << label << endl;
     for (int i = 0; i < tac.linesOccupied; ++i) {
-        cout << *tac.matrixBytes[i] << endl;
-        if (tac.lineTaggs[i] == address) {
-            value = tac.matrixBytes[i];
-            cout << "CACHE HIT" << endl;
+        if(!(tac.lineTaggs[i] xor tag)){
+        	*value = tac.matrixBytes[i][offset];
             return true;
         }
     }
-    cout << "Cache MISS" << endl;
+    //cout << "Cache MISS" << endl;
     return false;
     
 }
-void TACache::setTACacheData(TACache& tac, int address, int value) {
-    for (int i = tac.linesOccupied; i > 0; ++i){
-        tac.matrixBytes[i] = tac.matrixBytes[i-1];
-        tac.lineTaggs[i] = tac.lineTaggs[i-1];
+bool TACache::setTACacheData(TACache& tac, int address, int value) {
+    // Verificando os bits de label
+    int offset = (tac.nLines - 1) & address;
+    int tag = (address & !tag) >> tac.tagSize;
+    //cout << "label = " << label << endl;
+    for (int i = 0; i < tac.linesOccupied; ++i) {
+        if(!(tac.lineTaggs[i] xor tag)){
+        	tac.matrixBytes[i][offset] = value;
+            return true;
+        }
     }
-    tac.lineTaggs[tac.linesOccupied] = address;
-    tac.matrixBytes[tac.linesOccupied] = &value;
-
-    if (tac.linesOccupied != tac.nLines -1){
-        ++tac.linesOccupied;
-    }
+    //cout << "Cache MISS" << endl;
+    return false;
 }
+
+void TACache::setTACacheLine(TACache& tac, int address, int *line) {
+	int tag = (address & (tac.nLines -1)) >> tac.tagSize;
+	for (int i = tac.linesOccupied; i > 0; --i) {
+		tac.lineTaggs[i] = tac.lineTaggs[i-1];
+		tac.matrixBytes[i] = tac.matrixBytes[i-1];
+	}
+	if(tac.linesOccupied < tac.nLines - 1)  {
+		++tac.linesOccupied;
+	}
+	tac.lineTaggs[tac.linesOccupied] = tag;
+	tac.matrixBytes[tac.linesOccupied] = line;
+}
+
+// char []  toString() {
+// 	for (int i = 0; i < ; ++i) {
+// 		// TODO
+// 	}
+// }
