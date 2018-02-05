@@ -6,12 +6,14 @@
  * Classe para representar a memória.
  */
 class MainMemory{
+	friend class Memory;
 private:
 	int ramsize;
 	int vmsize;
 	MainMemory(int ramsize, int vmsize);
 	int* memory;
 public:
+	MainMemory();
 	static MainMemory createMainMemory(int ramsize, int vmsize);
 	static int allocSegment(MainMemory mem, int id, int size);
 	static int getMainMemoryData(MainMemory mem, int adress, int* value);

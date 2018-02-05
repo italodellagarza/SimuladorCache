@@ -10,13 +10,14 @@ class Memory{
     private:
         Cache c;
         MainMemory mMemory;
-    private:
-        Memory createMemory(Cache c, MainMemory mem);
-        int getData(Memory mem, int address, int * value);
-        int getInstruction(Memory mem, int address, int * value);
-        int setData(Memory &mem, int address, int value);
-        int setInstruction(Memory &mem, int address, int value);
-        Memory duplicateMemory(Memory mem);
+    public:
+        Memory();
+        static Memory createMemory(Cache c, MainMemory mem);
+        static int getData(Memory mem, int address, int * value);
+        static int getInstruction(Memory mem, int address, int * value);
+        static void setData(Memory &mem, int address, int value);
+        static void setInstruction(Memory &mem, int address, int value);
+        static Memory duplicateMemory(Memory mem);
 };
 
 #endif

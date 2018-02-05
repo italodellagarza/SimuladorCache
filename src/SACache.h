@@ -8,9 +8,9 @@ using namespace std;
 class SACache {
 friend class TACache;
 private:
-    SACache();
     TACache tac;
 public:
+	SACache();
 	static SACache createSACache(int c, int a, int l);
 	static int getSACacheCapacity(SACache sac);
 	static int getSACacheLineSize(SACache sac);

@@ -8,11 +8,12 @@
  */
 class Processor{
 private:
-	Processor();
-	Memory [] coreMemory;
 	int ncores;
 public:
+	Memory coreMemory[];
+	Processor();
 	static Processor createProcessor(Memory mem, int ncores);
+	~Processor();
 
 };
 

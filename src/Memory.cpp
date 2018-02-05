@@ -21,14 +21,14 @@ int Memory::getData(Memory mem, int address, int * value){
 	//~ Se retornar 4 ,quer dizer que a busca nao encontrou
 	//~ a informacao no L1, no L2 e no L3, assim, e preciso conferir na memoria,
 	//~ dessa forma testa se esta pegando na memoria.
-	if ((address >= 0) and (address < (mem.ramsize + mem.vmsize))){
+	if ((address >= 0) and (address < (mem.mMemory.ramsize + mem.mMemory.vmsize))){
 		retorno = 4;
 	}else{
 		retorno = -1;
 	}
 	//~ verifica se encontrou.
     if(retorno == 4){
-        retorno = getCacheData(mem.cache, mem.memoria, address, value);
+        retorno = Cache::getCacheData(mem.c, mem.mMemory, address, value);
         return retorno;
     }
     return -1;
@@ -39,7 +39,7 @@ int Memory::getInstruction(Memory mem, int address, int * value){
     //~ Se retornar 4 ,quer dizer que a busca nao encontrou
 	//~ a informacao no L1, no L2 e no L3, assim, e preciso conferir na memoria,
 	//~ dessa forma testa se esta pegando na memoria.
-    if ((address >= 0) and (address < (mem.ramsize + mem.vmsize))){
+    if ((address >= 0) and (address < (mem.mMemory.ramsize + mem.mMemory.vmsize))){
 		retorno = 4;
 	}else{
 		retorno = -1;
@@ -47,22 +47,22 @@ int Memory::getInstruction(Memory mem, int address, int * value){
     if(retorno == -1){
         return retorno;
     }
-    int instrucion = getCacheInstruction(mem.cache, mem.memoria, address, value);
+    int instruction = Cache::getCacheInstruction(mem.c, mem.mMemory, address, value);
     return instruction;
 }
 
-int Memory::setData(Memory &mem, int address, int value){
-    return setCacheData(mem.cache, mem.memoria, address, value); 
+void Memory::setData(Memory &mem, int address, int value){
+    Cache::setCacheData(mem.c, mem.mMemory, address, value); 
 }
 
-int Memory::setInstruction(Memory &mem, int address, int value){
-    return setCacheInstruction(mem.cache, mem.memoria, address, value);
+void Memory::setInstruction(Memory &mem, int address, int value){
+    Cache::setCacheInstruction(mem.c, mem.mMemory, address, value);
 }
 
 Memory Memory::duplicateMemory(Memory mem){
     Memory newHierarchy;
-    newHierarchy.c = duplicateCache(mem.cache);
-    newHierarchy.mMemory = mem.memoria;
+    newHierarchy.c = Cache::duplicateCache(mem.c);
+    newHierarchy.mMemory = mem.mMemory;
     return mem;
 }
 

@@ -103,50 +103,54 @@ int main(int argc, const char * argv[]) {
         }
         
         else if (command == "cmem"){
-            mem = Memory::createMemory(l1d, l1i, l2, l3, mp);
+			Cache c = Cache::createCache(l1d, l1i, l2, &l3);
+            mem = Memory::createMemory(c, mp);
             // cout << "criei hierarquia de memoria" << endl;
         }
         
         else if (command == "cp"){
             int n;
             file >> n;
-            p = new Processor(mem, n);
+            p = Processor::createProcessor(mem, n);
             // cout << "criei um processador com " << n << " nucleos" << endl;
         }
         
         else if (command == "ri"){
-            int n, addr, value;
+            int n, addr;
+            int* value;
             file >> n  >>  addr;
-            Memory::getInstruction(p.mem[n], addr, value);
+            Memory::getInstruction(p.coreMemory[n], addr, value);
             // cout << "li a instrucao de endereco " << addr << " no nucleo " << n << endl; 
         }
         
         else if (command == "wi"){
             int n, addr, value;
             file >> n  >>  addr;
-            Memory::setInstruction(p.mem[n], addr, value);
+            Memory::setInstruction(p.coreMemory[n], addr, value);
             // cout << "escrevi a instrucao de endereco " << addr << " no nucleo " << n << endl;
         }
         
         else if (command == "rd"){
-            int n, addr, value;
+            int n, addr;
+            int* value;
             file >> n  >>  addr;
-            Memory::getData(p.mem[n], addr, value);
+            Memory::getData(p.coreMemory[n], addr, value);
             // cout << "li o dado de endereco " << addr << " no nucleo " << n << endl;
-        // }
+        }
         
         else if (command == "wd"){
             int n, addr, value;
             file >> n  >>  addr >> value;
-            Memory::setData(p.mem[n], addr, value);
+            Memory::setData(p.coreMemory[n], addr, value);
             // cout << "escrevi o dado " << value <<" de endereco " << addr << " no nucleo " << n << endl;
         }
         
         else if (command == "asserti"){
-            int n, addr, value, level, vCompare;
+            int n, addr, level;
+            int* vCompare, value;
             file >> n  >>  addr >> level >> value;
-            if(level == Memory::getData(p.mem[n], addr, vCompare) {
-                if(vCompare == value) {
+            if(level == Memory::getInstruction(p.coreMemory[n], addr, vCompare)) {
+                if(*vCompare == value) {
                     // CONFIRMA.
                 }
                 else {
@@ -160,10 +164,11 @@ int main(int argc, const char * argv[]) {
             //      << "e comparei com level " << level << " e com value " << value << endl;
         }
         else if (command == "assertd"){
-            int n, addr, value, level, vCompare;
+            int n, addr, level;
+            int* vCompare, value;
             file >> n  >>  addr >> level >> value;
-            if(level == Memory::getData(p.mem[n], addr, vCompare) {
-                if(vCompare == value) {
+            if(level == Memory::getData(p.coreMemory[n], addr, vCompare)) {
+                if(*vCompare == value) {
                     // CONFIRMA.
                 }
                 else {

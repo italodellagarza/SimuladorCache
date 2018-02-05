@@ -1,7 +1,8 @@
 #include <iostream>
 #include "Cache.h"
+#include "SACache.h"
 
-Cache::Cache(SaCache l1d, SACache l1i, SACache l2, SACache l3) {
+Cache::Cache(SACache l1d, SACache l1i, SACache l2, SACache* l3) {
     this->l1d = l1d;
     this->l1i = l1i;
     this->l2 = l2;
@@ -13,9 +14,9 @@ Cache Cache::createCache(SACache l1d, SACache l1i, SACache l2, SACache* l3) {
 }
 
 void Cache::fetchCacheData(Cache &c, MainMemory mmem, int address){
-    int addressIl1 = address & (-c.l1d.bytesLinha);
-    int addressIl2 = address & (-c.l2.bytesLinha);
-    int addressIl3 = address & (-c.l2.bytesLinha);
+    int addressIl1 = address & (SACache::getSACacheLineSize(l1d));
+    int addressIl2 = address & (SACache::getSACacheLineSize(l2));
+    int addressIl3 = address & (SACache::getSACacheLineSize(l3));
     int* linel1 = &mmem.memory[addressIl1];
     int* linel2 = &mmem.memory[addressIl2];
     int* linel3 = &mmem.memory[addressIl3];
@@ -25,9 +26,9 @@ void Cache::fetchCacheData(Cache &c, MainMemory mmem, int address){
 }
 
 void Cache::fetchCacheInstruction(Cache &c, MainMemory mmem, int address){
-    int addressIl1 = address & (-c.l1i.bytesLinha);
-    int addressIl2 = address & (-c.l2.bytesLinha);
-    int addressIl3 = address & (-c.l2.bytesLinha);
+    int addressIl1 = address & (-c.l1i.bytesLine);
+    int addressIl2 = address & (-c.l2.bytesLine);
+    int addressIl3 = address & (-c.l2.bytesLine);
     int* linel1 = &mmem.memory[addressIl1];
     int* linel2 = &mmem.memory[addressIl2];
     int* linel3 = &mmem.memory[addressIl3];

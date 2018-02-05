@@ -9,7 +9,7 @@
 MainMemory::MainMemory(int ramsize, int vmsize) {
     this->ramsize = ramsize;
     this->vmsize = vmsize;
-    memory = new int[vmsize + ramsize];
+    this->memory = new int[vmsize + ramsize];
 }
 
 MainMemory MainMemory::createMainMemory(int ramsize, int vmsize) {
