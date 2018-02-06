@@ -2,7 +2,8 @@
 #include <cstdlib>
 #include <fstream>
 #include <stdio.h>
-#include <vector>
+#include <memory.h>
+//~ #include <vector>
 
 using namespace std;
 typedef char byte;
@@ -192,6 +193,7 @@ bool TACache::setTACacheData(TACache& tac, int address, int value) {
 void TACache::setTACacheLine(TACache& tac, int address, int *line) {
 	// Verifica primeiro se já tem
 	bool naoTem = true;
+	int tag = (address & (tac.nLines -1)) >> tac.offsetSize;
 	for (int i = 0; naoTem && i < tac.linesOccupied; ++i) {
         if(!(tac.lineTaggs[i] xor tag)){
             naoTem = false;
@@ -199,7 +201,6 @@ void TACache::setTACacheLine(TACache& tac, int address, int *line) {
     }
     // se não tem.
     if(naoTem) {
-		int tag = (address & (tac.nLines -1)) >> tac.offsetSize;
 		for (int i = tac.linesOccupied; i > 0; --i) {
 			tac.lineTaggs[i] = tac.lineTaggs[i-1];
 			tac.matrixBytes[i] = tac.matrixBytes[i-1];
@@ -207,8 +208,7 @@ void TACache::setTACacheLine(TACache& tac, int address, int *line) {
 		if(tac.linesOccupied < tac.nLines - 1)  {
 			++tac.linesOccupied;
 		}
-		tac.lineTaggs[tac.linesOccupied] = tag;
-
+		tac.lineTaggs[0] = tag;
 		memcpy(tac.matrixBytes[tac.linesOccupied], line, tac.tACacheLineSize); // VERIFICAR
 	}
 }
@@ -221,10 +221,12 @@ SACache::SACache() {
 SACache SACache::createSACache(int c, int a, int l){
 	SACache* sac = new SACache();
 	sac->nSets = c/(a*l);
+	sac->sACacheCapacity = c;
+	sac->sACacheLineSize = l;
 	sac->a = a;
-	vetorTACache = new TACache[sac->nSets];
+	sac->vetorTACache = new TACache[sac->nSets];
 	for (int i = 0; i < sac->nSets; i++){
-		vetorTACache[i] = TACache::createTACache((a*l),l);
+		sac->vetorTACache[i] = TACache::createTACache((a*l),l);
 	}
 	return *sac;
 }
@@ -239,25 +241,32 @@ inline int SACache::getSACacheLineSize(SACache sac){//acessa dados privados
 }
 
 bool SACache::getSACacheData(SACache sac, int address, int * value){
-    // MUDAR
-    return TACache::getTACacheData(sac.vetorTACache, address, value);
+	int position = (address/getSACacheLineSize(sac)) & (sac.nSets -1);
+	return TACache::getTACacheData(sac.vetorTACache[position], address, value);
 }
 
 void SACache::setSACacheLine(SACache &sac, int address, int *line){
-    TACache::setTACacheLine(*sac.vetorTACache, address, line);
+	int position = (address/getSACacheLineSize(sac)) & (sac.nSets -1);
+    TACache::setTACacheLine(sac.vetorTACache[position], address, line);
 }
 
 bool SACache::setSACacheData(SACache &sac, int address, int value){
-     // MUDAR
-     return TACache::setTACacheData(*sac.vetorTACache, address, value);
+    int position = (address/getSACacheLineSize(sac)) & (sac.nSets -1);
+	return TACache::setTACacheData(sac.vetorTACache[position], address, value);
 }
 
 
 SACache* SACache::duplicateSACache(SACache sac){
-    SACache* novo = new SACache();
-	novo->tac = TACache::createTACache(SACache::getSACacheCapacity(sac), TACache::getTACacheLineSize(sac.tac));
-	novo->tac->a = sac.vetorTACache->a;    
-    return novo;
+    SACache* newSac = new SACache();
+	newSac->nSets = sac.nSets;
+	newSac->sACacheCapacity = sac.sACacheCapacity;
+	newSac->sACacheLineSize = sac.sACacheLineSize;
+	newSac->a = sac.a;
+	newSac->vetorTACache = new TACache[sac.nSets];
+	for (int i = 0; i < sac.nSets; i++){
+		newSac->vetorTACache[i] = TACache::createTACache((sac.a*sac.sACacheLineSize),sac.sACacheLineSize);
+	}
+	return newSac;
 }
 
 Processor::Processor() {
@@ -291,7 +300,7 @@ Memory::Memory(){
 	//~ Guarda os atributos da cache e da memoria pincipal.
 Memory Memory::createMemory(Cache c, MainMemory mem){
     Memory createdMemory;
-    createdMemory.cetorTACa = c;
+    createdMemory.c = c;
     createdMemory.mMemory = mem;
     return createdMemory;
 }
@@ -389,7 +398,7 @@ bool isPot2(int num) {
     return true;
 }
 
-Cache::Cache(){lid adress
+Cache::Cache(){
 }
 
 Cache::Cache(SACache l1d, SACache l1i, SACache l2, SACache* l3) {
@@ -510,7 +519,7 @@ void Cache::setCacheInstruction(Cache &c, MainMemory mmem, int address, int valu
     else if(SACache::getSACacheData(c.l2, address, &value)){
         ret = 2;
     }
-    else if(SACache::getSACacheData(*c.l3, addlid adressress, &value)) {
+    else if(SACache::getSACacheData(*c.l3, address, &value)) {
         ret = 3;
     }
     else{
