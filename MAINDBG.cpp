@@ -209,7 +209,9 @@ void TACache::setTACacheLine(TACache& tac, int address, int *line) {
 			++tac.linesOccupied;
 		}
 		tac.lineTaggs[0] = tag;
+		cout << "debug8" << endl;
 		memcpy(tac.matrixBytes[0], line, tac.tACacheLineSize); // VERIFICAR
+		cout << "AKi" << endl;
 	}
 }
 
@@ -233,20 +235,21 @@ SACache SACache::createSACache(int c, int a, int l){
 
 
 inline int SACache::getSACacheCapacity(SACache sac){//acessa dados privados
-    return sac.sACacheCapacity;
+    return TACache::getTACacheCapacity(*sac.vetorTACache);
 }
 
 inline int SACache::getSACacheLineSize(SACache sac){//acessa dados privados
-    return sac.sACacheLineSize;
+    return TACache::getTACacheLineSize(*sac.vetorTACache);
 }
 
 bool SACache::getSACacheData(SACache sac, int address, int * value){
-	int position = (address/getSACacheLineSize(sac)) & (sac.nSets -1);
+	int position = (address/sac.sACacheLineSize) & (sac.nSets -1);
+	cout << "position = " << position << " nSets = " << sac.nSets << endl;
 	return TACache::getTACacheData(sac.vetorTACache[position], address, value);
 }
 
 void SACache::setSACacheLine(SACache &sac, int address, int *line){
-	int position = (address/getSACacheLineSize(sac)) & (sac.nSets -1);
+	int position = (address/sac.sACacheLineSize) & (sac.nSets -1);
     TACache::setTACacheLine(sac.vetorTACache[position], address, line);
 }
 
@@ -326,6 +329,7 @@ int Memory::getData(Memory mem, int address, int * value){
 }
 
 int Memory::getInstruction(Memory mem, int address, int * value){
+	cout << "debug1" << endl;
     int retorno;
     //~ Se retornar 4 ,quer dizer que a busca nao encontrou
 	//~ a informacao no L1, no L2 e no L3, assim, e preciso conferir na memoria,
@@ -338,6 +342,7 @@ int Memory::getInstruction(Memory mem, int address, int * value){
     if(retorno == -1){
         return retorno;
     }
+    cout << "debug2" << endl;
     int instruction = Cache::getCacheInstruction(mem.c, mem.mMemory, address, value);
     return instruction;
 }
@@ -372,8 +377,11 @@ MainMemory MainMemory::createMainMemory(int ramsize, int vmsize) {
 }
 
 int MainMemory::getMainMemoryData(MainMemory mem, int address, int* value){
+	cout << "debug4" << endl;
     if(((mem.ramsize + mem.vmsize) > address) and (address >= 0)){
-        *value = mem.memory[address >> 2];
+		cout << "MEMSIZE = " << ((mem.ramsize + mem.vmsize)>>2) << " ADDRESS = " << (address >> 2) << endl;
+        *value = mem.memory[(address >> 2)];
+        cout << "debug5" << endl;
         return 4;
     }
     return -1;
@@ -433,13 +441,14 @@ void Cache::fetchCacheInstruction(Cache &c, MainMemory mmem, int address){
 	// Aqui se encontra o complemento de dois do tamanho da linha de cada cache,
 	// faz-se um and bit a bit com address para encontrar o endereço em
 	// em cada cache.
-    int addressIl1 = address & (-SACache::getSACacheLineSize(c.l1d));
+    int addressIl1 = address & (-SACache::getSACacheLineSize(c.l1i));
     int addressIl2 = address & (-SACache::getSACacheLineSize(c.l2));
     int addressIl3 = address & (-SACache::getSACacheLineSize(*c.l3));
     int* linel1 = &mmem.memory[addressIl1];
     int* linel2 = &mmem.memory[addressIl2];
     int* linel3 = &mmem.memory[addressIl3];
     SACache::setSACacheLine(c.l1i, address, linel1);
+    cout << "debug7" << endl;
     SACache::setSACacheLine(c.l2, address, linel2);
     SACache::setSACacheLine(*c.l3, address, linel3);
 }
@@ -467,6 +476,7 @@ int Cache::getCacheData(Cache &c, MainMemory mmem, int address, int * value){
 
 int Cache::getCacheInstruction(Cache &c, MainMemory mmem, int address, int * value){
     int ret = 1;
+    cout << "debug3" << endl;
     if(SACache::getSACacheData(c.l1i, address, value)){
         return 1;
     }
@@ -479,11 +489,10 @@ int Cache::getCacheInstruction(Cache &c, MainMemory mmem, int address, int * val
     else{
         ret = MainMemory::getMainMemoryData(mmem, address, value);
     }
-    
+    cout << "ret =" << ret << endl;
     if (ret > 0) { // for valid adress
         fetchCacheInstruction(c, mmem, address);
     }
-    
     return ret;
 }
 
@@ -636,7 +645,7 @@ int main(int argc, const char * argv[]) {
             int value;
             file >> n  >>  addr;
             Memory::getInstruction(p.coreMemory[n], addr, &value);
-            //cout << "li a instrucao de endereco " << addr << " no nucleo " << n << endl; 
+            cout << "li a instrucao de endereco " << addr << " no nucleo " << n << endl; 
         }
         
         else if (command == "wi"){
@@ -651,7 +660,7 @@ int main(int argc, const char * argv[]) {
             int value;
             file >> n  >>  addr;
             Memory::getData(p.coreMemory[n], addr, &value);
-            //cout << "li o dado de endereco " << addr << " no nucleo " << n << endl;
+            cout << "li o dado de endereco " << addr << " no nucleo " << n << endl;
         }
         
         else if (command == "wd"){
