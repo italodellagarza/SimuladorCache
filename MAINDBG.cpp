@@ -211,7 +211,6 @@ void TACache::setTACacheLine(TACache& tac, int address, int *line) {
 		tac.lineTaggs[0] = tag;
 		cout << "debug8" << endl;
 		memcpy(tac.matrixBytes[0], line, tac.tACacheLineSize); // VERIFICAR
-		cout << "AKi" << endl;
 	}
 }
 
@@ -426,9 +425,9 @@ void Cache::fetchCacheData(Cache &c, MainMemory mmem, int address){
 	// Aqui se encontra o complemento de dois do tamanho da linha de cada cache,
 	// faz-se um and bit a bit com address para encontrar o endereço em
 	// em cada cache.
-    int addressIl1 = address & (-SACache::getSACacheLineSize(c.l1d));
-    int addressIl2 = address & (-SACache::getSACacheLineSize(c.l2));
-    int addressIl3 = address & (-SACache::getSACacheLineSize(*c.l3));
+    int addressIl1 = address & (SACache::getSACacheLineSize(c.l1d)-1);
+    int addressIl2 = address & (SACache::getSACacheLineSize(c.l2)-1);
+    int addressIl3 = address & (SACache::getSACacheLineSize(*c.l3)-1);
     int* linel1 = &mmem.memory[addressIl1];
     int* linel2 = &mmem.memory[addressIl2];
     int* linel3 = &mmem.memory[addressIl3];
@@ -441,9 +440,9 @@ void Cache::fetchCacheInstruction(Cache &c, MainMemory mmem, int address){
 	// Aqui se encontra o complemento de dois do tamanho da linha de cada cache,
 	// faz-se um and bit a bit com address para encontrar o endereço em
 	// em cada cache.
-    int addressIl1 = address & (-SACache::getSACacheLineSize(c.l1i));
-    int addressIl2 = address & (-SACache::getSACacheLineSize(c.l2));
-    int addressIl3 = address & (-SACache::getSACacheLineSize(*c.l3));
+    int addressIl1 = address & (SACache::getSACacheLineSize(c.l1i) -1);
+    int addressIl2 = address & (SACache::getSACacheLineSize(c.l2) -1);
+    int addressIl3 = address & (SACache::getSACacheLineSize(*c.l3) -1);
     int* linel1 = &mmem.memory[addressIl1];
     int* linel2 = &mmem.memory[addressIl2];
     int* linel3 = &mmem.memory[addressIl3];
