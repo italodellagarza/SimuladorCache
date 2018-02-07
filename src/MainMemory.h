@@ -1,24 +1,30 @@
 #ifndef MAINMEMORY_H
 #define MAINMEMORY_H 1
 
-
 /**
- * Classe para representar a memória.
+ * Trabalho de Arquitetura de Computadores I - Simulador de cache de Memória
+ * Alunos:  Ítalo Della Garza Silva
+ *          Giovani Rezende 
+ *          Rodrigo
+ *          Lucas Fiorini Braga
+ *      Isadora Moreira Rodrigues
+ * Universidade Federal de Lavras - 2018
+ * Cabeçalho da classe MainMemory
  */
+
 class MainMemory{
-	friend class Memory;
+    friend class Memory;
 private:
-	int ramsize;
-	int vmsize;
-	MainMemory(int ramsize, int vmsize);
-	int* memory;
+    MainMemory(int ramsize, int vmsize);
 public:
-	MainMemory();
-	static MainMemory createMainMemory(int ramsize, int vmsize);
-	static int allocSegment(MainMemory mem, int id, int size);
-	static int getMainMemoryData(MainMemory mem, int adress, int* value);
-	static int setMainMemoryData(MainMemory &mem, int adress, int value);
-	~MainMemory();
+    int ramsize;
+    int vmsize;
+    int* memory;
+    MainMemory();
+    static MainMemory createMainMemory(int ramsize, int vmsize);
+    static int allocSegment(MainMemory mem, int id, int size);
+    static int getMainMemoryData(MainMemory mem, int adress, int* value);
+    static int setMainMemoryData(MainMemory &mem, int adress, int value);
 };
 
 

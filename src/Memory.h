@@ -1,10 +1,19 @@
+/**
+ * Trabalho de Arquitetura de Computadores I - Simulador de cache de Memória
+ * Alunos:  Ítalo Della Garza Silva
+ *          Giovani Rezende 
+ *          Rodrigo
+ *          Lucas Fiorini Braga
+ *          Isadora Moreira Rodrigues
+ * Universidade Federal de Lavras - 2018
+ * Cabeçalho da classe Memory
+ */
+ 
 #ifndef MEMORY_H
-#define MEMORY_H
-#include <iostream>
+#define MEMORY_H 1
+
 #include "MainMemory.h"
 #include "Cache.h"
-
-using namespace std;
 
 class Memory{
     private:
@@ -20,4 +29,4 @@ class Memory{
         static Memory duplicateMemory(Memory mem);
 };
 
-#endif
+#endif //MEMORY_H

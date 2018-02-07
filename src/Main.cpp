@@ -4,7 +4,7 @@
  *          Giovani Rezende 
  *          Rodrigo
  *          Lucas Fiorini Braga
- *      Isadora Moreira Rodrigues
+ *          Isadora Moreira Rodrigues
  * Universidade Federal de Lavras - 2018
  * Função principal do programa
  */
@@ -13,9 +13,11 @@
 #include <cstdlib>
 #include <string>
 #include <fstream>
+
 #include "Cache.h"
 #include "TACache.h"
 #include "SACache.h"
+#include "Memory.h"
 #include "MainMemory.h"
 #include "Processor.h"
 
@@ -36,7 +38,14 @@ int main(int argc, const char * argv[]) {
     Memory mem;
     Processor p;
     ifstream file(argv[1]);
+    ofstream relatory("RELATORIO.txt");
     string command;
+    
+    int L1_HITS = 0;
+    int L2_HITS = 0;
+    int L3_HITS = 0;
+    int L4_HITS = 0;
+    int N_ERRORS = 0;
 
     while(file >> command) {
         cout << "Comando sendo executado:" << command << endl;
@@ -103,7 +112,7 @@ int main(int argc, const char * argv[]) {
         }
         
         else if (command == "cmem"){
-			Cache c = Cache::createCache(l1d, l1i, l2, &l3);
+            Cache c = Cache::createCache(l1d, l1i, l2, &l3);
             mem = Memory::createMemory(c, mp);
             // cout << "criei hierarquia de memoria" << endl;
         }
@@ -117,25 +126,40 @@ int main(int argc, const char * argv[]) {
         
         else if (command == "ri"){
             int n, addr;
-            int* value;
+            int value;
             file >> n  >>  addr;
-            Memory::getInstruction(p.coreMemory[n], addr, value);
-            // cout << "li a instrucao de endereco " << addr << " no nucleo " << n << endl; 
+            Memory::getInstruction(p.coreMemory[n], addr, &value);
+            //cout << "li a instrucao de endereco " << addr << " no nucleo " << n << endl; 
         }
         
         else if (command == "wi"){
             int n, addr, value;
-            file >> n  >>  addr;
+            file >> n  >>  addr >> value;
             Memory::setInstruction(p.coreMemory[n], addr, value);
             // cout << "escrevi a instrucao de endereco " << addr << " no nucleo " << n << endl;
         }
         
         else if (command == "rd"){
-            int n, addr;
-            int* value;
+            int n, addr, retGetData;
+            int value;
             file >> n  >>  addr;
-            Memory::getData(p.coreMemory[n], addr, value);
-            // cout << "li o dado de endereco " << addr << " no nucleo " << n << endl;
+            retGetData = Memory::getData(p.coreMemory[n], addr, &value);
+            if(retGetData == 1){
+                ++L1_HITS;
+            }
+            else if(retGetData == 2) {
+                ++L2_HITS;
+            }
+            else if(retGetData == 3) {
+                ++L3_HITS;
+            }
+            else if(retGetData == 4) {
+                ++L4_HITS;
+            }
+            else if(retGetData == -1) {
+                ++N_ERRORS;
+            }
+            //cout << "li o dado de endereco " << addr << " no nucleo " << n << endl;
         }
         
         else if (command == "wd"){
@@ -147,10 +171,10 @@ int main(int argc, const char * argv[]) {
         
         else if (command == "asserti"){
             int n, addr, level;
-            int* vCompare, value;
+            int vCompare, value;
             file >> n  >>  addr >> level >> value;
-            if(level == Memory::getInstruction(p.coreMemory[n], addr, vCompare)) {
-                if(*vCompare == value) {
+            if(level == Memory::getInstruction(p.coreMemory[n], addr, &vCompare)) {
+                if(vCompare == value) {
                     // CONFIRMA.
                 }
                 else {
@@ -165,10 +189,10 @@ int main(int argc, const char * argv[]) {
         }
         else if (command == "assertd"){
             int n, addr, level;
-            int* vCompare, value;
+            int vCompare, value;
             file >> n  >>  addr >> level >> value;
-            if(level == Memory::getData(p.coreMemory[n], addr, vCompare)) {
-                if(*vCompare == value) {
+            if(level == Memory::getData(p.coreMemory[n], addr, &vCompare)) {
+                if(vCompare == value) {
                     // CONFIRMA.
                 }
                 else {
@@ -186,5 +210,37 @@ int main(int argc, const char * argv[]) {
             exit(EXIT_FAILURE);
         }
     }
+    relatory << "------- DESCRICAO DE MEMORIA -------" << endl
+         << "RAM = " << mp.ramsize << " BYTES" << endl
+         << "VIRTUAL = " << mp.vmsize << " BYTES" << endl 
+         << "------------------------------------" << endl
+         << "CACHE L1 (INSTRUCOES):" << endl
+         << "CAPACIDADE = " << SACache::getSACacheCapacity(l1i) << " BYTES" << endl
+         << "ASSOCIATIVIDADE = " << l1i.a << endl
+         << "TAMANHO DA LINHA = " << SACache::getSACacheLineSize(l1i) << " BYTES" << endl
+         << "------------------------------------" << endl
+         << "CACHE L1 (DADOS):" << endl
+         << "CAPACIDADE = " << SACache::getSACacheCapacity(l1d) << " BYTES" << endl
+         << "ASSOCIATIVIDADE = " << l1d.a << endl
+         << "TAMANHO DA LINHA = " << SACache::getSACacheLineSize(l1d) << " BYTES" << endl
+         << "------------------------------------" << endl
+         << "CACHE L2" << endl
+         << "CAPACIDADE = " << SACache::getSACacheCapacity(l2) << " BYTES" << endl
+         << "ASSOCIATIVIDADE = " << l2.a << endl
+         << "TAMANHO DA LINHA = " << SACache::getSACacheLineSize(l2) << " BYTES" << endl
+         << "------------------------------------" << endl
+         << "CACHE L3" << endl
+         << "CAPACIDADE = " << SACache::getSACacheCapacity(l3) << " BYTES" << endl
+         << "ASSOCIATIVIDADE = " << l3.a << endl
+         << "TAMANHO DA LINHA = " << SACache::getSACacheLineSize(l3) << " BYTES" << endl
+         << "------------------------------------" << endl
+         << "HITS EM L1 = " << L1_HITS << endl
+         << "HITS EM L2 = " << L2_HITS << endl
+         << "HITS EM L3 = " << L3_HITS << endl
+         << "HITS EM L4 = " << L4_HITS << endl
+         << "ERROS = " << N_ERRORS << endl; 
+         
+    relatory.close();
+    
     return EXIT_SUCCESS;
 }

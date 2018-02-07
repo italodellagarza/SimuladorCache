@@ -1,21 +1,26 @@
+/**
+ * Trabalho de Arquitetura de Computadores I - Simulador de cache de Memória
+ * Alunos:  Ítalo Della Garza Silva
+ *          Giovani Rezende 
+ *          Rodrigo
+ *          Lucas Fiorini Braga
+ *          Isadora Moreira Rodrigues
+ * Universidade Federal de Lavras - 2018
+ * Métodos para a classe TACache
+ */
+
 #include "TACache.h"
 #include <cstdlib>
 #include <iostream>
 
 using namespace std;
+
 TACache::TACache() {
     matrixBytes = NULL;
-    nLines = 0;
-    tagSize = 0;
+    nLines = 1;
+    offsetSize = 0;
     linesOccupied = 0;
-    tagSize = 0;
-    a = 1;
 }
-
-TACache::~TACache() {
-    delete [] matrixBytes;
-}
-
 
 TACache TACache::createTACache(int c, int l) {
     TACache* tac = new TACache();
@@ -30,8 +35,8 @@ TACache TACache::createTACache(int c, int l) {
     tac->tACacheLineSize = l;
     int w = tac->nLines;
     while(w xor 1) {
-    	w  = w >> 1;
-    	++tac->tagSize;
+        w  = w >> 1;
+        ++tac->offsetSize;
     }
     return *tac;
 }
@@ -49,11 +54,11 @@ int TACache::getTACacheLineSize(TACache tac) {
 bool TACache::getTACacheData(TACache tac, int address, int * value) {
     // Verificando os bits de label
     int offset = (tac.nLines - 1) & address;
-    int tag = (address & !offset) >> tac.tagSize;
+    int tag = address  >> tac.offsetSize;
     //cout << "label = " << label << endl;
     for (int i = 0; i < tac.linesOccupied; ++i) {
         if(!(tac.lineTaggs[i] xor tag)){
-        	*value = tac.matrixBytes[i][offset];
+            *value = tac.matrixBytes[i][offset];
             return true;
         }
     }
@@ -64,11 +69,11 @@ bool TACache::getTACacheData(TACache tac, int address, int * value) {
 bool TACache::setTACacheData(TACache& tac, int address, int value) {
     // Verificando os bits de label
     int offset = (tac.nLines - 1) & address;
-    int tag = (address & !tag) >> tac.tagSize;
+    int tag = (address & offset) >> tac.offsetSize;
     //cout << "label = " << label << endl;
     for (int i = 0; i < tac.linesOccupied; ++i) {
         if(!(tac.lineTaggs[i] xor tag)){
-        	tac.matrixBytes[i][offset] = value;
+            tac.matrixBytes[i][offset] = value;
             return true;
         }
     }
@@ -77,20 +82,24 @@ bool TACache::setTACacheData(TACache& tac, int address, int value) {
 }
 
 void TACache::setTACacheLine(TACache& tac, int address, int *line) {
-	int tag = (address & (tac.nLines -1)) >> tac.tagSize;
-	for (int i = tac.linesOccupied; i > 0; --i) {
-		tac.lineTaggs[i] = tac.lineTaggs[i-1];
-		tac.matrixBytes[i] = tac.matrixBytes[i-1];
-	}
-	if(tac.linesOccupied < tac.nLines - 1)  {
-		++tac.linesOccupied;
-	}
-	tac.lineTaggs[tac.linesOccupied] = tag;
-	tac.matrixBytes[tac.linesOccupied] = line;
+    // Verifica primeiro se já tem
+    bool naoTem = true;
+    int tag = (address & (tac.nLines -1)) >> tac.offsetSize;
+    for (int i = 0; naoTem && i < tac.linesOccupied; ++i) {
+        if(!(tac.lineTaggs[i] xor tag)){
+            naoTem = false;
+        }
+    }
+    // se não tem.
+    if(naoTem) {
+        for (int i = tac.linesOccupied; i > 0; --i) {
+            tac.lineTaggs[i] = tac.lineTaggs[i-1];
+            tac.matrixBytes[i] = tac.matrixBytes[i-1];
+        }
+        if(tac.linesOccupied < tac.nLines - 1)  {
+            ++tac.linesOccupied;
+        }
+        tac.lineTaggs[0] = tag;
+        memcpy(tac.matrixBytes[0], line, tac.tACacheLineSize); // VERIFICAR
+    }
 }
-
-// char []  toString() {
-// 	for (int i = 0; i < ; ++i) {
-// 		// TODO
-// 	}
-// }
